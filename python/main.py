@@ -6,6 +6,7 @@ import json
 import logging
 import random
 import webapp2
+import time
 
 # Reads json description of the board and provides simple interface.
 class Game:
@@ -126,11 +127,15 @@ def PrettyMove(move):
 	m = move["Where"]
 	return '%s%d' % (chr(ord('A') + m[0] - 1), m[1])
 
+
+
 class MainHandler(webapp2.RequestHandler):
     # Handling GET request, just for debugging purposes.
     # If you open this handler directly, it will show you the
     # HTML form here and let you copy-paste some game's JSON
     # here for testing.
+    start = time.time()
+    
     def get(self):
         if not self.request.get('json'):
           self.response.write("""
@@ -159,12 +164,53 @@ Paste JSON here:<p/><textarea name=json cols=80 rows=24></textarea>
     		# Passes if no valid moves.
     		self.response.write("PASS")
     	else:
+            
     		# Chooses a valid move randomly if available.
                 # TO STEP STUDENTS:
                 # You'll probably want to change how this works, to do something
                 # more clever than just picking a random move.
-	    	move = random.choice(valid_moves)
-    		self.response.write(PrettyMove(move))
+#            move = random.choice(valid_moves)
+#            for i in range(len(valid_moves)):
+#                new_game = g.NextBoardPosition(valid_moves[i])
+#                if min>len(new_game.ValidMoves()):
+#                    better_way = valid_moves[i]
+#                    min = len(new_game.ValidMoves())
+#            move = minwaydetector(self,g)
+#            move = maxwaydetector(self,g.NextBoardPosition(move))
+            move = minwaydetector(self,g)
+            self.response.write(PrettyMove(move))
+
+#def bestwaydetector(self,g):
+#    best_way = betterwaydetector(self,g.NextBoardPosition(betterwaydetector(self,g))
+#    return best_way
+
+#def betterwaydetector(self,g):
+#    if not g.Next() ==  self["history"][len(self["history"])-1]["As"]:
+#        better_way = minwaydetector(self,g)
+#    else:
+#        better_way = maxwaydetector(self,g)
+#    return better_way
+
+def minwaydetector(self,g):
+    min = 100
+    valid_moves = g.ValidMoves()
+    for i in range(len(valid_moves)):
+        new_game = g.NextBoardPosition(valid_moves[i])
+        if min>len(new_game.ValidMoves()):
+            better_way = valid_moves[i]
+            min = len(new_game.ValidMoves())
+    return  better_way
+
+def maxwaydetector(self,g):
+    max = 0
+    valid_moves = g.ValidMoves()
+    for i in range(len(valid_moves)):
+        new_game = g.NextBoardPosition(valid_moves[i])
+        if max < len(new_game.ValidMoves()):
+            better_way = valid_moves[i]
+            min = len(new_game.ValidMoves())
+    return better_way
+
 
 app = webapp2.WSGIApplication([
     ('/', MainHandler)
